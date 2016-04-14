@@ -1,0 +1,18 @@
+Programming assignment 3
+----------------------------------
+Sayyed Karen Khatamifard
+Filipe Betzel
+----------------------------------
+
+Please find the file "sample-tet", including all the error types
+mentioned in the assignment.
+
+Our application considers declarations based on the nesting level. When
+the nesting level decreases, it removes all the variables from the symbol
+table. This way, we make sure at each line, we are looking at the most
+nested available instance of a variable.
+
+Our parser successfully finds all the errors in the Tests and our file.
+
+Limits: 
+The only case that it cannot handle is nested structure in Test2.
