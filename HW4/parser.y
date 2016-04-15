@@ -7,6 +7,7 @@
 #include "nesting.h"
 #include "symbol_tables.h"
 #include "semantic_routines.h"
+#include "codegen.h"
 
 type_t int_type;
 type_t float_type;
@@ -99,7 +100,7 @@ type_t string_type;
 /* ==== Grammar Section ==== */
 
 /* Productions */               /* Semantic actions */
-program		: { init_all(); strcpy(int_type.real_type, "int"); strcpy(string_type.real_type, "string"); strcpy(float_type.real_type, "float"); } global_decl_list { print_vars(); print_types(); print_funcs(); print_structs(); print_all_asm(); fclose(asm_file);}
+program		: { init_all(); strcpy(int_type.real_type, "int"); strcpy(string_type.real_type, "string"); strcpy(float_type.real_type, "float"); } global_decl_list { print_vars(); print_types(); print_funcs(); print_structs(); print_all_asm(); close_asm_file();}
 		;
 
 global_decl_list: global_decl_list global_decl
@@ -210,7 +211,7 @@ init_id_list	: init_id {$$=$1;}
 
 init_id		: ID { $$=var_decl($1, 0); }
 		| ID dim_decl { $$=var_decl($1, $2); }
-		| ID OP_ASSIGN relop_expr { $$=var_decl($1, 0); emit_var_assign($1); check_assign_types($1, $3); }
+		| ID OP_ASSIGN relop_expr { $$=var_decl($1, 0); emit_var_assign($1); }
 		;
 
 stmt_list	: stmt_list stmt
@@ -304,8 +305,8 @@ factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; }
 		| OP_NOT MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_not();}
                 /* OP_MINUS condition added as C could have a condition like: "if(-(i < 10))".	*/		
 		| OP_MINUS MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_negate();}
-		| CONST	{ $$ = int_type;  emit_const_loadi($1); }
-		| CONSTF { emit_const_loadf($1); $$ = float_type; }
+		| CONST	{ $$ = int_type; emit_const_loadi($1); }
+		| CONSTF { emit_const_loadf($1); printf("floating point %f\n", $1); $$ = float_type; }
 		/* | - constant, here - is an Unary operator */ 
 		| OP_NOT CONST 	{ $$ = int_type; emit_const_loadi($2); emit_not(); }
 		| OP_NOT CONSTF 	{ $$ = float_type; emit_const_loadf($2); emit_not(); }

@@ -6,6 +6,7 @@
 #include "nesting.h"
 #include "symbol_tables.h"
 #include "semantic_routines.h"
+#include "codegen.h"
 
 type_t *type_ll=NULL;
 var_t *var_ll=NULL;
@@ -205,8 +206,8 @@ id_list_t *newIDnode(char* name, int dim){
 	strcpy(temp->name, name);
 	temp->dim = dim;
 	temp->next = NULL;
-	temp->sp_offset = sp_offset;
-	sp_offset -= 4;
+	temp->sp_offset = get_sp_offset();
+	set_sp_offset( get_sp_offset() - 4 );
 	return temp;
 
 }
@@ -341,16 +342,7 @@ void init_all(){
 
 	init_types();
 	init_funcs();
-	asm_file = fopen ( "out.s", "w" );
-	data_asm="";
-	main_asm="";
-	
-	int i;
-	live_list[0] = 1;
-	live_list[1] = 1;
-	for ( i=2 ; i<18 ; i++ )
-		live_list[i] = 0;
-
+	init_codegen();	
 }
 
 /**********************************
@@ -641,46 +633,5 @@ decl_list_t *find_struct_member( structs_t *var_struct, char *name )
 	}
 
 	return return_member;
-}
-
-
-///////////////////////////////////////////////////////////
-///////////////---- emitting funcs -----///////////////////
-///////////////////////////////////////////////////////////
-
-char *str_append ( char *str1, char*str2 ) {
-	char * new_str ;
-	if((new_str = malloc(strlen(str1)+strlen(str2)+1)) != NULL){
-    	new_str[0] = '\0';
-    	strcat(new_str,str1);
-    	strcat(new_str,str2);
-	} 
-	
-	return new_str;
-}
-
-void emit_asm ( char *text ) {
-	
-	fprintf ( asm_file, "%s", text );
-	
-}
-
-void print_all_asm() {
-
-	emit_asm ( "\t.text\n" );
-	emit_asm ( main_asm );
-	emit_asm ( "\t.data\n" );
-	emit_asm ( data_asm );
-
-}
-
-void emit_func ( char **file, char* name ) {
-
-	*file = str_append ( *file, name );
-	*file = str_append ( *file, ":\n" );
-
-	//save registers here
-	
-
 }
 

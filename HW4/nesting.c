@@ -6,6 +6,7 @@
 #include "nesting.h"
 #include "symbol_tables.h"
 #include "semantic_routines.h"
+#include "codegen.h"
 
 static int nesting = 0;
 static int linenumber = 1;
@@ -22,8 +23,8 @@ void inc_nesting()
 
 void dec_nesting()
 {
-	pop_vars( nesting );
-	pop_types( nesting );
+	//pop_vars( nesting );
+	//pop_types( nesting );
 	nesting--;
 }
 

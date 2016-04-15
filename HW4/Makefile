@@ -6,8 +6,8 @@ YACC = bison -v
 YACCFLAG = 
 LIBS = -lfl 
 
-parser: parser.tab.o semantic_routines.o symbol_tables.o nesting.o
-	$(CC) -o $(TARGET) parser.tab.o semantic_routines.o symbol_tables.o nesting.o $(LIBS)
+parser: parser.tab.o semantic_routines.o symbol_tables.o nesting.o codegen.o
+	$(CC) -o $(TARGET) parser.tab.o semantic_routines.o symbol_tables.o nesting.o codegen.o $(LIBS)
 
 parser.tab.o: parser.tab.c lex.yy.c
 	$(CC) -c parser.tab.c
@@ -20,6 +20,9 @@ symbol_tables.o: symbol_tables.c
 
 nesting.o: nesting.c
 	$(CC) -c nesting.c
+
+codegen.o: codegen.c
+	$(CC) -c codegen.c
 
 lex.yy.c: lexer3.l
 	$(LEX) lexer3.l

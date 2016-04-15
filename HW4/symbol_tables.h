@@ -6,12 +6,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-FILE *asm_file;
-char *main_asm;
-char *data_asm;
-int sp_offset;
-int live_list[18];
-
 typedef struct id_list {
 	char name[256];
 	struct id_list *next;
@@ -103,18 +97,6 @@ func_t* find_func( char *name );
 func_t* find_last_func( );
 
 int get_num_params( func_t *func );
-
-type_t check_func_call ( char *name, int param_count );
-
-type_t check_id_type( char *name );
-
-void check_op_types ( type_t a, type_t b);
-
-void check_func_return ( type_t ret_type );
-
-void check_array_dimmension ( type_t id );
-
-void check_dim_type ( type_t dim_type );
 
 param_list_t *newParamNode(char* type, char* name, int dim, int nest_level);
 
