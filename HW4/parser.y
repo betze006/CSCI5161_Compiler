@@ -147,7 +147,7 @@ block           : decl_list stmt_list
                 | 
                 ;
  
-decl_list	: decl_list decl
+decl_list	: decl_list decl { emit_source_text( ); }
 		| decl
 		;
 
@@ -214,8 +214,8 @@ init_id		: ID { $$=var_decl($1, 0); }
 		| ID OP_ASSIGN relop_expr { $$=var_decl($1, 0); emit_var_assign($1); }
 		;
 
-stmt_list	: stmt_list stmt
-		| stmt
+stmt_list	: stmt_list stmt { emit_source_text( ); }
+		| stmt 
 		;
 
 stmt		: MK_LBRACE{inc_nesting();} block MK_RBRACE{dec_nesting();}
@@ -231,8 +231,8 @@ stmt		: MK_LBRACE{inc_nesting();} block MK_RBRACE{dec_nesting();}
 		| var_ref OP_ASSIGN relop_expr MK_SEMICOLON { check_array_dimmension( $1 ); check_assign_types($1, $3); emit_var_assign($1.name);}
 		| relop_expr_list MK_SEMICOLON
 		| MK_SEMICOLON
-		| RETURN MK_SEMICOLON { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(); }
-		| RETURN relop_expr MK_SEMICOLON { check_func_return($2); emit_return();}
+		| RETURN MK_SEMICOLON { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(temp); }
+		| RETURN relop_expr MK_SEMICOLON { check_func_return($2); emit_return($2);}
 		;
 
 function_call    : ID MK_LPAREN relop_expr_list MK_RPAREN { $$ = check_func_call( $1, $3.param_count ); emit_func_call($1, $3.param_count, $3.real_type); }
@@ -306,7 +306,7 @@ factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; }
                 /* OP_MINUS condition added as C could have a condition like: "if(-(i < 10))".	*/		
 		| OP_MINUS MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_negate();}
 		| CONST	{ $$ = int_type; emit_const_loadi($1); }
-		| CONSTF { emit_const_loadf($1); printf("floating point %f\n", $1); $$ = float_type; }
+		| CONSTF { emit_const_loadf($1); $$ = float_type; }
 		/* | - constant, here - is an Unary operator */ 
 		| OP_NOT CONST 	{ $$ = int_type; emit_const_loadi($2); emit_not(); }
 		| OP_NOT CONSTF 	{ $$ = float_type; emit_const_loadf($2); emit_not(); }

@@ -14,12 +14,34 @@ func_t *func_ll=NULL;
 structs_t *structs_ll=NULL;
 char struct_type[256];
 char random_name[256];
+char source_text[4096];
 
 
 //======================================================
 //------------------   FUNC DEFS    --------------------
 //======================================================
+/**********************************
+** Souce Code
+***********************************/
+void init_source_text()
+{
+	int i;
+	for( i=0; i<4096; i++)
+	{
+		source_text[i] = 0;
+	}
+}
 
+void append_source_text( char *text )
+{
+	strcat( source_text, text );
+	free( text );
+}
+
+char *get_source_text( )
+{
+	return source_text;
+}
 
 /**********************************
 ** VARS
@@ -339,7 +361,7 @@ void init_funcs () {
 }
 
 void init_all(){
-
+	init_source_text();
 	init_types();
 	init_funcs();
 	init_codegen();	

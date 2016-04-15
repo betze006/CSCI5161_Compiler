@@ -802,7 +802,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 57 "lexer3.l"
-;   /* do nothing with whitespace */
+{ /* */ }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
@@ -813,198 +813,198 @@ YY_RULE_SETUP
 case 3:
 YY_RULE_SETUP
 #line 59 "lexer3.l"
-{ yylval.str = strdup(yytext); return INT; }
+{ append_source_text( strdup(yytext) ); yylval.str = strdup(yytext); return INT; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 60 "lexer3.l"
-{ yylval.str = strdup(yytext); return FLOAT; }
+{ append_source_text( strdup(yytext) ); yylval.str = strdup(yytext); return FLOAT; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 61 "lexer3.l"
-{ yylval.str = strdup(yytext); return VOID; }
+{ append_source_text( strdup(yytext) ); yylval.str = strdup(yytext); return VOID; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 62 "lexer3.l"
-return IF;
+{ append_source_text( strdup(yytext) ); return IF; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 63 "lexer3.l"
-return ELSE;
+{ append_source_text( strdup(yytext) ); return ELSE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 64 "lexer3.l"
-return WHILE;
+{ append_source_text( strdup(yytext) ); return WHILE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 65 "lexer3.l"
-return FOR;
+{ append_source_text( strdup(yytext) ); return FOR; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 66 "lexer3.l"
-return STRUCT;
+{ append_source_text( strdup(yytext) ); return STRUCT; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 67 "lexer3.l"
-return STRUCT;
+{ append_source_text( strdup(yytext) ); return STRUCT; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 68 "lexer3.l"
-return TYPEDEF;
+{ append_source_text( strdup(yytext) ); return TYPEDEF; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 69 "lexer3.l"
-return RETURN;
+{ append_source_text( strdup(yytext) ); return RETURN; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 70 "lexer3.l"
-{ yylval.str = strdup(yytext); return ID; }
+{ append_source_text( strdup(yytext) ); yylval.str = strdup(yytext); return ID; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 71 "lexer3.l"
-return OP_ASSIGN; 
+{ append_source_text( strdup(yytext) ); return OP_ASSIGN; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 72 "lexer3.l"
-return OP_AND;
+{ append_source_text( strdup(yytext) ); return OP_AND; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 73 "lexer3.l"
-return OP_OR;
+{ append_source_text( strdup(yytext) ); return OP_OR; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 74 "lexer3.l"
-return OP_NOT;
+{ append_source_text( strdup(yytext) ); return OP_NOT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 75 "lexer3.l"
-return OP_EQ;
+{ append_source_text( strdup(yytext) ); return OP_EQ; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 76 "lexer3.l"
-return OP_NE;
+{ append_source_text( strdup(yytext) ); return OP_NE; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 77 "lexer3.l"
-return OP_LT;
+{ append_source_text( strdup(yytext) ); return OP_LT; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 78 "lexer3.l"
-return OP_GT;
+{ append_source_text( strdup(yytext) ); return OP_GT; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 79 "lexer3.l"
-return OP_LE;
+{ append_source_text( strdup(yytext) ); return OP_LE; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 80 "lexer3.l"
-return OP_GE;
+{ append_source_text( strdup(yytext) ); return OP_GE; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 81 "lexer3.l"
-return OP_PLUS;
+{ append_source_text( strdup(yytext) ); return OP_PLUS; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 82 "lexer3.l"
-return OP_MINUS;
+{ append_source_text( strdup(yytext) ); return OP_MINUS; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 83 "lexer3.l"
-return OP_TIMES;
+{ append_source_text( strdup(yytext) ); return OP_TIMES; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 84 "lexer3.l"
-return OP_DIVIDE;
+{ append_source_text( strdup(yytext) ); return OP_DIVIDE; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 85 "lexer3.l"
-{  yylval.ival = atoi(yytext); return CONST;}
+{ append_source_text( strdup(yytext) ); yylval.ival = atoi(yytext); return CONST;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 86 "lexer3.l"
-{  yylval.fval = atof(yytext); return CONSTF;}
+{ append_source_text( strdup(yytext) ); yylval.fval = atof(yytext); return CONSTF;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 87 "lexer3.l"
-{  yylval.str = strdup(yytext); return CONSTS;}
+{ append_source_text( strdup(yytext) ); yylval.str = strdup(yytext); return CONSTS;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 88 "lexer3.l"
-return MK_LPAREN;
+{ append_source_text( strdup(yytext) ); return MK_LPAREN; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 89 "lexer3.l"
-return MK_RPAREN;
+{ append_source_text( strdup(yytext) ); return MK_RPAREN; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 90 "lexer3.l"
-return MK_LBRACE;
+{ append_source_text( strdup(yytext) ); return MK_LBRACE; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 91 "lexer3.l"
-return MK_RBRACE;
+{ append_source_text( strdup(yytext) ); return MK_RBRACE; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 92 "lexer3.l"
-return MK_LB;
+{ append_source_text( strdup(yytext) ); return MK_LB; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 93 "lexer3.l"
-return MK_RB;
+{ append_source_text( strdup(yytext) ); return MK_RB; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 94 "lexer3.l"
-return MK_COMMA;
+{ append_source_text( strdup(yytext) ); return MK_COMMA; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 95 "lexer3.l"
-return MK_SEMICOLON;
+{ append_source_text( strdup(yytext) ); return MK_SEMICOLON; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 96 "lexer3.l"
-return MK_DOT;
+{ append_source_text( strdup(yytext) ); return MK_DOT; }
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
 #line 97 "lexer3.l"
-inc_linenumber();
+{ inc_linenumber(); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP

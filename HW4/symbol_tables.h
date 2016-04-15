@@ -57,12 +57,19 @@ typedef struct structs {
 typedef struct temp_reg_list {
 	int reg;
 	char label[100];
+	char type[256];
 	struct temp_reg_list *next;
 } temp_reg_t;
 
 //======================================================
 //------------------   FUNC PROTOTYPES    --------------
 //======================================================
+
+void init_source_text();
+
+void append_source_text( char *text );
+
+char *get_source_text( );
 
 void print_vars();
 

@@ -2,12 +2,20 @@
 int main () {
 
 	int x=1,y,z=3,w;
-	float a=2.3;
+	float a,b,c;
+	a=1.1;
+	b=2.2;
+	c=a+b;
 	x=2;
-	y=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1 ;
+	y=1+1;
+
+	write("\n");
+	write(c);
+	write("\n");
+
 	write(y*8+2/1);
-	
-	write("\nHello!\n");
+
+	write("\nHello!\n");	
 	
 	return 0;
 }

@@ -1741,6 +1741,12 @@ yyreduce:
     {(yyval.ival)=0;}
     break;
 
+  case 29:
+/* Line 1787 of yacc.c  */
+#line 150 "parser.y"
+    { emit_source_text( ); }
+    break;
+
   case 33:
 /* Line 1787 of yacc.c  */
 #line 158 "parser.y"
@@ -1927,6 +1933,12 @@ yyreduce:
     { (yyval.ID_List)=var_decl((yyvsp[(1) - (3)].str), 0); emit_var_assign((yyvsp[(1) - (3)].str)); }
     break;
 
+  case 72:
+/* Line 1787 of yacc.c  */
+#line 217 "parser.y"
+    { emit_source_text( ); }
+    break;
+
   case 74:
 /* Line 1787 of yacc.c  */
 #line 221 "parser.y"
@@ -1948,13 +1960,13 @@ yyreduce:
   case 84:
 /* Line 1787 of yacc.c  */
 #line 234 "parser.y"
-    { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(); }
+    { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(temp); }
     break;
 
   case 85:
 /* Line 1787 of yacc.c  */
 #line 235 "parser.y"
-    { check_func_return((yyvsp[(2) - (3)].EXPR_type)); emit_return();}
+    { check_func_return((yyvsp[(2) - (3)].EXPR_type)); emit_return((yyvsp[(2) - (3)].EXPR_type));}
     break;
 
   case 86:
@@ -2158,7 +2170,7 @@ yyreduce:
   case 124:
 /* Line 1787 of yacc.c  */
 #line 309 "parser.y"
-    { emit_const_loadf((yyvsp[(1) - (1)].fval)); printf("floating point %f\n", (yyvsp[(1) - (1)].fval)); (yyval.EXPR_type) = float_type; }
+    { emit_const_loadf((yyvsp[(1) - (1)].fval)); (yyval.EXPR_type) = float_type; }
     break;
 
   case 125:
@@ -2271,7 +2283,7 @@ yyreduce:
 
 
 /* Line 1787 of yacc.c  */
-#line 2275 "parser.tab.c"
+#line 2287 "parser.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

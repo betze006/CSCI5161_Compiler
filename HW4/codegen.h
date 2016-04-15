@@ -20,6 +20,17 @@ int get_sp_offset();
 
 void set_sp_offset( int offset );
 
+void emit_source_text( );
+
 void emit_const_loadf ( float fl );
+
+char *str_append ( char *str1, char*str2 );
+
+void emit_return( type_t ret_type );
+
+void reg_float_to_int( int d );
+
+void reg_int_to_float( int d );
+
 
 #endif //codegen.h_
