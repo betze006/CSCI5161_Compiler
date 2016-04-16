@@ -100,24 +100,29 @@ void emit_func ( char* name ) {
 
 }
 
-void emit_var_assign ( char *name ) {
+void emit_var_assign ( type_t var_type ) {
 
 	char str[100];
+	var_t *existing_var;
 
-	var_t *existing_var = find_var( name );
+	// Do type conversion
+	if( strcmp(t0_type,"int")==0 && strcmp(var_type.real_type,"float")==0 )
+	{
+		reg_int_to_float( 8 );
+	}
+	else if( strcmp(t0_type,"float")==0 && strcmp(var_type.real_type,"int")==0 )
+	{
+		reg_float_to_int( 8 );
+	}
+	
+	existing_var = find_var( var_type.name );
 	if ( existing_var == NULL )
+	{
+		// First assignment. create new space in stack
 		sprintf ( str, "\tsw $8, %d($sp)\n", sp_offset+4 );
+	}
 	else
 	{
-		// Do type conversion
-		if( strcmp(t0_type,"int")==0 && strcmp(existing_var->type,"float")==0 )
-		{
-			reg_int_to_float( 8 );
-		}
-		else if( strcmp(t0_type,"float")==0 && strcmp(existing_var->type,"int")==0 )
-		{
-			reg_float_to_int( 8 );
-		}
 		// save register to stack
 		sprintf ( str, "\tsw $8, %d($sp)\n", existing_var->sp_offset );
 	}
@@ -129,7 +134,7 @@ void emit_const_loadi ( int i ){
 	char str[100];
 	sprintf ( str, "\tli $8, %d\n", i );
 	main_asm = str_append ( main_asm, str );
-	
+	strcpy( t0_type, "int" );
 }
 
 // FIXME: For some reason, the floating point does not get properly to this point.
@@ -138,7 +143,7 @@ void emit_const_loadf ( float fl ){
 	char str[100];
 	sprintf ( str, "\tli $8, 0x%04x\n", *((unsigned int *) &fl) );
 	main_asm = str_append ( main_asm, str );
-
+	strcpy( t0_type, "float" );
 }
 
 void emit_negate() {

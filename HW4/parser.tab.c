@@ -1930,7 +1930,7 @@ yyreduce:
   case 71:
 /* Line 1787 of yacc.c  */
 #line 214 "parser.y"
-    { (yyval.ID_List)=var_decl((yyvsp[(1) - (3)].str), 0); emit_var_assign((yyvsp[(1) - (3)].str)); }
+    { (yyval.ID_List)=var_decl((yyvsp[(1) - (3)].str), 0); emit_var_assign( check_id_type((yyvsp[(1) - (3)].str)) ); }
     break;
 
   case 72:
@@ -1954,7 +1954,7 @@ yyreduce:
   case 81:
 /* Line 1787 of yacc.c  */
 #line 231 "parser.y"
-    { check_array_dimmension( (yyvsp[(1) - (4)].EXPR_type) ); check_assign_types((yyvsp[(1) - (4)].EXPR_type), (yyvsp[(3) - (4)].EXPR_type)); emit_var_assign((yyvsp[(1) - (4)].EXPR_type).name);}
+    { check_array_dimmension( (yyvsp[(1) - (4)].EXPR_type) ); check_assign_types((yyvsp[(1) - (4)].EXPR_type), (yyvsp[(3) - (4)].EXPR_type)); emit_var_assign((yyvsp[(1) - (4)].EXPR_type));}
     break;
 
   case 84:
@@ -1984,7 +1984,7 @@ yyreduce:
   case 92:
 /* Line 1787 of yacc.c  */
 #line 248 "parser.y"
-    {emit_var_assign((yyvsp[(1) - (4)].str));}
+    {emit_var_assign( check_id_type((yyvsp[(1) - (4)].str)) );}
     break;
 
   case 94:

@@ -6,16 +6,43 @@ main:
 	sw $8, -12($sp)
 # intmain(){intx=1,y,z=3,w;floata,b,c;
 
+	lw $8, -4($sp)
+	li $8, 3
+	sw $8, -4($sp)
+	lw $8, -8($sp)
+	li $8, 1
+	move $10, $8
+	li $8, 1
+	move $9, $10
+	add $8, $8, $9
+	sw $8, -8($sp)
+# x=3;y=1+1;
+
 	lw $8, -20($sp)
-	li $8, 0x3f8ccccd
+	li $8, 0x3f99999a
 	sw $8, -20($sp)
+# a=1.2;
+
 	lw $8, -24($sp)
-	li $8, 0x400ccccd
+	li $8, 2
+	mtc1 $8, $f0
+	cvt.s.w $f0, $f0
+	mfc1 $8, $f0
 	sw $8, -24($sp)
-# a=1.1;b=2.2;
+# b=2;
 
 	lw $8, -28($sp)
 	lw $8, -20($sp)
+	move $10, $8
+	lw $8, -4($sp)
+	move $9, $10
+	mtc1 $8, $f0
+	cvt.s.w $f0, $f0
+	mfc1 $8, $f0
+	mtc1 $8, $f0
+	mtc1 $9, $f2
+	mul.s $f0, $f0, $f2
+	mfc1 $8, $f0
 	move $10, $8
 	lw $8, -24($sp)
 	move $9, $10
@@ -24,21 +51,32 @@ main:
 	add.s $f0, $f0, $f2
 	mfc1 $8, $f0
 	sw $8, -28($sp)
-# c=a+b;
-
-	lw $8, -4($sp)
-	li $8, 2
-	sw $8, -4($sp)
-# x=2;
+# c=a*x+b;
 
 	lw $8, -8($sp)
-	li $8, 1
+	lw $8, -20($sp)
 	move $10, $8
-	li $8, 1
+	lw $8, -4($sp)
 	move $9, $10
-	add $8, $8, $9
+	mtc1 $8, $f0
+	cvt.s.w $f0, $f0
+	mfc1 $8, $f0
+	mtc1 $8, $f0
+	mtc1 $9, $f2
+	mul.s $f0, $f0, $f2
+	mfc1 $8, $f0
+	move $10, $8
+	lw $8, -24($sp)
+	move $9, $10
+	mtc1 $8, $f0
+	mtc1 $9, $f2
+	add.s $f0, $f0, $f2
+	mfc1 $8, $f0
+	mtc1 $8, $f0
+	cvt.w.s $f0, $f0
+	mfc1 $8, $f0
 	sw $8, -8($sp)
-# y=1+1;
+# y=a*x+b;
 
 	la $8, _0_const_string
 	move $10, $8
@@ -72,23 +110,11 @@ main:
 
 	lw $8, -8($sp)
 	move $10, $8
-	li $8, 8
-	move $9, $10
-	mul $8, $8, $9
-	move $10, $8
-	li $8, 2
-	move $11, $8
-	li $8, 1
-	move $9, $11
-	div $8, $9, $8
-	move $9, $10
-	add $8, $8, $9
-	move $10, $8
 	move $9, $10
 	move $a0, $9
 	li $v0, 1
 	syscall
-# write(y*8+2/1);
+# write(y);
 
 # 
 

@@ -32,5 +32,7 @@ void reg_float_to_int( int d );
 
 void reg_int_to_float( int d );
 
+void emit_var_assign ( type_t var_type );
+
 
 #endif //codegen.h_

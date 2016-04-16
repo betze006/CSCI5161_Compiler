@@ -3,17 +3,22 @@ int main () {
 
 	int x=1,y,z=3,w;
 	float a,b,c;
-	a=1.1;
-	b=2.2;
-	c=a+b;
-	x=2;
+
+	x=3;
 	y=1+1;
+
+	a=1.2;
+	b=2;
+
+	c=a*x+b;
+
+	y=a*x+b;
 
 	write("\n");
 	write(c);
 	write("\n");
 
-	write(y*8+2/1);
+	write(y);
 
 	write("\nHello!\n");	
 	

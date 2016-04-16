@@ -211,7 +211,7 @@ init_id_list	: init_id {$$=$1;}
 
 init_id		: ID { $$=var_decl($1, 0); }
 		| ID dim_decl { $$=var_decl($1, $2); }
-		| ID OP_ASSIGN relop_expr { $$=var_decl($1, 0); emit_var_assign($1); }
+		| ID OP_ASSIGN relop_expr { $$=var_decl($1, 0); emit_var_assign( check_id_type($1) ); }
 		;
 
 stmt_list	: stmt_list stmt { emit_source_text( ); }
@@ -228,7 +228,7 @@ stmt		: MK_LBRACE{inc_nesting();} block MK_RBRACE{dec_nesting();}
 		| IF MK_LPAREN relop_expr MK_RPAREN stmt 
 		/* | read and write library calls -- note that read/write are not keywords */ 
 		| function_call
-		| var_ref OP_ASSIGN relop_expr MK_SEMICOLON { check_array_dimmension( $1 ); check_assign_types($1, $3); emit_var_assign($1.name);}
+		| var_ref OP_ASSIGN relop_expr MK_SEMICOLON { check_array_dimmension( $1 ); check_assign_types($1, $3); emit_var_assign($1);}
 		| relop_expr_list MK_SEMICOLON
 		| MK_SEMICOLON
 		| RETURN MK_SEMICOLON { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(temp); }
@@ -245,7 +245,7 @@ assign_expr_list : nonempty_assign_expr_list
 nonempty_assign_expr_list        : nonempty_assign_expr_list MK_COMMA assign_expr
                 | assign_expr
 
-assign_expr     : ID {process_id($1);} OP_ASSIGN relop_expr {emit_var_assign($1);}
+assign_expr     : ID {process_id($1);} OP_ASSIGN relop_expr {emit_var_assign( check_id_type($1) );}
                 | relop_expr
 
 
