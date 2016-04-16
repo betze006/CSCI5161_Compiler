@@ -220,12 +220,12 @@ stmt_list	: stmt_list stmt { emit_source_text( ); }
 
 stmt		: MK_LBRACE{inc_nesting();} block MK_RBRACE{dec_nesting();}
 		/* | While Statement here */
-		| WHILE MK_LPAREN relop_expr_list MK_RPAREN stmt
-	        | FOR MK_LPAREN assign_expr_list MK_SEMICOLON relop_expr_list MK_SEMICOLON assign_expr_list MK_RPAREN stmt 
+		| WHILE {gen_head();} MK_LPAREN relop_expr_list {gen_test_while();} MK_RPAREN stmt {gen_label_exit_while();}
+        | FOR MK_LPAREN assign_expr_list MK_SEMICOLON {gen_head();} relop_expr_list MK_SEMICOLON {gen_test_for();} assign_expr_list MK_RPAREN {gen_label_for();} stmt {gen_label_exit_for();}
 		/* | If then else here */ 
-		| IF MK_LPAREN relop_expr MK_RPAREN stmt ELSE stmt
+		| if_stmt stmt ELSE {gen_label_if_else();} stmt {gen_label_exit_if_else();}
 		/* | If statement here */ 
-		| IF MK_LPAREN relop_expr MK_RPAREN stmt 
+		| if_stmt stmt {gen_label_exit_if();}
 		/* | read and write library calls -- note that read/write are not keywords */ 
 		| function_call
 		| var_ref OP_ASSIGN relop_expr MK_SEMICOLON { check_array_dimmension( $1 ); check_assign_types($1, $3); emit_var_assign($1);}
@@ -233,6 +233,9 @@ stmt		: MK_LBRACE{inc_nesting();} block MK_RBRACE{dec_nesting();}
 		| MK_SEMICOLON
 		| RETURN MK_SEMICOLON { type_t temp; strcpy(temp.real_type, "void"); check_func_return (temp); emit_return(temp); }
 		| RETURN relop_expr MK_SEMICOLON { check_func_return($2); emit_return($2);}
+		;
+
+if_stmt : IF {gen_head();} MK_LPAREN relop_expr MK_RPAREN {gen_test_if();}
 		;
 
 function_call    : ID MK_LPAREN relop_expr_list MK_RPAREN { $$ = check_func_call( $1, $3.param_count ); emit_func_call($1, $3.param_count, $3.real_type); }

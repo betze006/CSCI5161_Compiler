@@ -17,6 +17,8 @@ int sp_offset;
 int live_list[18];
 char t0_type[256];
 char t1_type[256];
+int label_no=0, label_no_global=0, label_no_local=0;
+int FP_label_no = 0;
 
 ///////////////////////////////////////////////////////////
 ///////////////---- emit funcs -----///////////////////
@@ -191,7 +193,7 @@ void push_reg_stack ( int i, char *str, char *type ) {
 		temp_reg_t *newtemp = reg_stack;
 		while ( newtemp->next != NULL ) newtemp = newtemp->next;
 		newtemp->next = (temp_reg_t *) malloc ( sizeof (temp_reg_t) );
-		strcpy( newtemp->type, type );
+		strcpy( newtemp->next->type, type );
 		newtemp->next->reg = 0;
 		if ( i != 0 )
 			newtemp->next->reg = i;
@@ -313,32 +315,67 @@ void emit_op( int op ) {
 		main_asm = str_append ( main_asm, str );
 
 		// perform computation
+		// BUG: spim won't recognize gt, ge, and ne
 		if ( op == 0 )
-			sprintf ( str, "\tmul.s $f0, $f0, $f2\n" );
+			sprintf ( str, "\tmul.s $f0, $f2, $f0\n" );
 		else if ( op == 1 )
-			sprintf ( str, "\tdiv.s $f0, $f0, $f2\n" );
+			sprintf ( str, "\tdiv.s $f0, $f2, $f0\n" );
 		else if ( op == 2 )
-			sprintf ( str, "\tadd.s $f0, $f0, $f2\n" );
+			sprintf ( str, "\tadd.s $f0, $f2, $f0\n" );
 		else if ( op == 3 )
-			sprintf ( str, "\tsub.s $f0, $f0, $f2\n" );
-		else if ( op == 6 )
-			sprintf ( str, "\tc.lt.s $f0, $f2\n" );
-		else if ( op == 7 )
-			sprintf ( str, "\tc.le.s $f0, $f2\n" );
-		else if ( op == 8 )
-			sprintf ( str, "\tc.gt.s $f0, $f2\n" );
-		else if ( op == 9 )
-			sprintf ( str, "\tc.ge.s $f0, $f2\n" );
-		else if ( op == 10 )
-			sprintf ( str, "\tc.eq.s $f0, $f2\n" );
-		else if ( op == 11 )
-			sprintf ( str, "\tc.ne.s $f0, $f2\n" );
+			sprintf ( str, "\tsub.s $f0, $f2, $f0\n" );
+		else if ( op == 6 || op == 9 )
+			sprintf ( str, "\tc.lt.s $f2, $f0\n" );
+		else if ( op == 7 || op == 8 )
+			sprintf ( str, "\tc.le.s $f2, $f0\n" );
+		//else if ( op == 8 )
+		//	sprintf ( str, "\tc.gt.s $f0, $f2\n" );
+		//else if ( op == 9 )
+		//	sprintf ( str, "\tc.ge.s $f0, $f2\n" );
+		else if ( op == 10 || op == 11)
+			sprintf ( str, "\tc.eq.s $f2, $f0\n" );
+		//else if ( op == 11 )
+		//	sprintf ( str, "\tc.ne.s $f0, $f2\n" );
 
 		main_asm = str_append ( main_asm, str );
 
-		// copy f0 to t0
-		sprintf ( str, "\tmfc1 $8, $f0\n" );
-		main_asm = str_append ( main_asm, str );		
+		// copy f0 to t0 if arithmetic operation
+		if( op==0 || op==1 || op==2 || op==3 )
+		{
+			sprintf ( str, "\tmfc1 $8, $f0\n" );
+			main_asm = str_append ( main_asm, str );
+		}
+		else if( op==6 || op==7 || op==10 )
+		{
+			// set t0 according to FP condition flag
+			sprintf ( str, "\tbc1f FP%d_clear\n", ++FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tli $8, 1\n" );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tj FP%d_exit\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "FP%d_clear:\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tli $8, 0\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "FP%d_exit:\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+		}
+		else if( op==8 || op==9 || op==11 )
+		{
+			sprintf ( str, "\tbc1t FP%d_clear\n", ++FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tli $8, 1\n" );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tj FP%d_exit\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "FP%d_clear:\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "\tli $8, 0\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+			sprintf ( str, "FP%d_exit:\n", FP_label_no );
+			main_asm = str_append ( main_asm, str );
+		}	
 	}
 	
 }
@@ -502,3 +539,119 @@ void emit_load_string ( char *const_str ) {
 	label_counter++;
 
 }
+
+void inc_loop_label()
+{
+	label_no_local++;
+	label_no_global+=10;
+}
+
+void dec_loop_label()
+{
+	label_no_local--;
+}
+
+void gen_head()
+{
+	char str[100];
+
+	inc_loop_label();
+	label_no = label_no_global + label_no_local;
+
+	sprintf ( str, "_Test%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_test_if()
+{
+	char str[100];
+
+	sprintf ( str, "\tbeqz $8, _Lexit_or_else%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_label_if_else()
+{
+	char str[100];
+
+	sprintf ( str, "\tj _Lexit%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "_Lexit_or_else%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_label_exit_if()
+{
+	char str[100];
+
+	sprintf ( str, "_Lexit_or_else%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+
+	dec_loop_label();
+}
+
+void gen_label_exit_if_else()
+{
+	char str[100];
+
+	sprintf ( str, "_Lexit%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+
+	dec_loop_label();
+}
+
+
+void gen_test_while()
+{
+	char str[100];
+
+	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_label_exit_while()
+{
+	char str[100];
+
+	sprintf ( str, "\tj _Test%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "_Lexit%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+
+	dec_loop_label();
+}
+
+void gen_test_for()
+{
+	char str[100];
+
+	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "\tj _Body%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "_Inc%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_label_for()
+{
+	char str[100];
+
+	sprintf ( str, "\tj _Test%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "_Body%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+}
+
+void gen_label_exit_for()
+{
+	char str[100];
+
+	sprintf ( str, "\tj _Inc%d\n", label_no );
+	main_asm = str_append ( main_asm, str );
+	sprintf ( str, "_Lexit%d:\n", label_no );
+	main_asm = str_append ( main_asm, str );
+
+	dec_loop_label();
+}
+

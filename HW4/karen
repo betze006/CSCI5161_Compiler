@@ -1,23 +1,49 @@
 
 int main () {
 
-	int x=1,y,z=3,w;
+	int x=1,y,z=3,w,i;
 	float a,b,c;
-
 	x=3;
 	y=1+1;
-
-	a=1.2;
+	a=4.2;
 	b=2;
 
-	c=a*x+b;
-
-	y=a*x+b;
 
 	write("\n");
+
+	/* Test if statement */
+	if(a>4)
+	{
+		write("True\n");
+	}
+	else
+	{
+		write("False\n");
+	}
+
+	/* test while loop */
+	i=0;
+	while( i<=3 )
+	{
+		write(i);
+		write("\n");
+		i=i+1;
+	}
+
+	/* test for loop */
+	for(i=3; i>=0; i=i-1)
+	{
+		write(i);
+		write("\n");
+	}
+
+	/* Test integer to float conversion */
+	c=a*x+b;
 	write(c);
 	write("\n");
 
+	/* Test float to integer conversion */
+	y=a*x+2;
 	write(y);
 
 	write("\nHello!\n");	
