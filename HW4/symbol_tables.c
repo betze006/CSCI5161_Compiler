@@ -371,9 +371,10 @@ void init_all(){
 ** FUNCTIONS
 ***********************************/
 void add_func ( char *type, char *name, param_list_t *params ) {
-
+	param_list_t *param_list;
+	func_t *func_pointer;
+	
 	if ( func_ll == NULL ) {
-		func_t *func_pointer;
 		//adding the new function
 		func_ll = (func_t *) malloc ( sizeof (func_t) );
 		func_pointer = func_ll;
@@ -387,7 +388,7 @@ void add_func ( char *type, char *name, param_list_t *params ) {
 	else {
 
 		//finding the next available place in functions LL
-		func_t *func_pointer = func_ll;
+		func_pointer = func_ll;
 		while ( func_pointer->next != NULL ) 
 			func_pointer = func_pointer->next;
 		//adding the new function
@@ -399,6 +400,18 @@ void add_func ( char *type, char *name, param_list_t *params ) {
 		strcpy(func_pointer->name, name);
 		func_pointer->params = params;
 		func_pointer->next = NULL;
+	}
+
+	// reset stack offset (first two entries are reserved for sp and ra)
+	set_sp_offset( 0 );
+
+	// Add parameters to variable table
+	param_list = func_pointer->params;
+	while( param_list!=NULL )
+	{
+		add_var(param_list->param.type, param_list->param.name, param_list->param.dim, param_list->param.nest_level, get_sp_offset() );
+		set_sp_offset( get_sp_offset() - 4 );
+		param_list = param_list->next;
 	}
 }
 

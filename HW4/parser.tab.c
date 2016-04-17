@@ -2168,13 +2168,13 @@ yyreduce:
   case 118:
 /* Line 1787 of yacc.c  */
 #line 286 "parser.y"
-    { (yyval.EXPR_type)=(yyvsp[(1) - (3)].EXPR_type) ; (yyval.EXPR_type).param_count = (yyvsp[(1) - (3)].EXPR_type).param_count + 1; emit_move_to_live(); }
+    { (yyval.EXPR_type)=(yyvsp[(1) - (3)].EXPR_type) ; (yyval.EXPR_type).param_count = (yyvsp[(1) - (3)].EXPR_type).param_count + 1; emit_move_to_live(); emit_save_to_stack(); }
     break;
 
   case 119:
 /* Line 1787 of yacc.c  */
 #line 287 "parser.y"
-    { (yyval.EXPR_type)=(yyvsp[(1) - (1)].EXPR_type) ; (yyval.EXPR_type).param_count = 1; emit_move_to_live(); }
+    { (yyval.EXPR_type)=(yyvsp[(1) - (1)].EXPR_type) ; (yyval.EXPR_type).param_count = 1; emit_move_to_live(); emit_save_to_stack(); }
     break;
 
   case 120:

@@ -19,6 +19,7 @@ char t0_type[256];
 char t1_type[256];
 int label_no=0, label_no_global=0, label_no_local=0;
 int FP_label_no = 0;
+int saved_sp_offset, saved_ra_offset;
 
 ///////////////////////////////////////////////////////////
 ///////////////---- emit funcs -----///////////////////
@@ -92,13 +93,153 @@ void print_all_asm() {
 
 }
 
+////////////////////////////
+// Function declaration emit functions
+////////////////////////////
 void emit_func ( char* name ) {
+	char str[100];
 
 	main_asm = str_append ( main_asm, name );
 	main_asm = str_append ( main_asm, ":\n" );
 
-	//save registers here
+	if( strcmp( name, "main" )==0 )
+	{
+		// offset sp due to exception trying to read from beginning of stack
+		sprintf ( str, "\tadd $sp, $sp, %d\n", -4 );
+		main_asm = str_append ( main_asm, str );
+	}
+
+	// sp saved by caller right after all the parameters
+	saved_sp_offset = sp_offset;
+	sp_offset -= 4;
+
+	// save ra
+	sprintf ( str, "\tsw $ra, %d($sp)\n", sp_offset );
+	main_asm = str_append ( main_asm, str );
+	saved_ra_offset = sp_offset;
+	sp_offset -= 4;
+
+}
+
+void emit_return( type_t ret_type ) {
+
+	char str[100];
+	// Do return type conversion
+	if( strcmp(ret_type.real_type,"int")==0 && strcmp(t0_type, "float")==0 )
+	{
+		reg_float_to_int( 8 );
+	}
+	else if( strcmp(ret_type.real_type,"float")==0 && strcmp(t0_type, "int")==0 )
+	{
+		reg_int_to_float( 8 );
+	}
+
+	// restore return address (always at offset -4)
+	sprintf ( str, "\tlw $ra, %d($sp)\n", saved_ra_offset );
+	main_asm = str_append ( main_asm, str );
+
+	//deallocate stack by restoring sp (always at offset 0)
+	sprintf ( str, "\tlw $sp, %d($sp)\n", saved_sp_offset );
+	main_asm = str_append ( main_asm, str );
+
+	//store the return value in $v0
+	sprintf ( str, "\tmove $2, $8\n" );
+	main_asm = str_append ( main_asm, str );
+
+	//return to $ra
+	sprintf ( str, "\tjr $ra\n" );
+	main_asm = str_append ( main_asm, str );
 	
+}
+
+////////////////////////////
+// Function call emit functions
+////////////////////////////
+
+void emit_func_call ( char *name, int param_count, char *type ) {
+
+	char str[100];
+
+	if ( strcmp ( name, "write" ) == 0 ) {
+		emit_get_from_live();
+		if( strcmp(type,"string")==0 )
+		{
+			//move integer/str_address to print
+			sprintf ( str, "\tmove $a0, $9\n" );
+			main_asm = str_append ( main_asm, str );
+
+			//set syscall type
+			sprintf ( str, "\tli $v0, 4\n" );
+			main_asm = str_append ( main_asm, str );
+		}
+		else if( strcmp(type,"int")==0 )
+		{
+			//move integer/str_address to print
+			sprintf ( str, "\tmove $a0, $9\n" );
+			main_asm = str_append ( main_asm, str );
+
+			//set syscall type
+			sprintf ( str, "\tli $v0, 1\n" );
+			main_asm = str_append ( main_asm, str );
+		}
+		else if( strcmp(type,"float")==0 )
+		{
+			// convert result to float if necessary
+			if( strcmp(t1_type,"int")==0 )
+			{
+				reg_int_to_float( 9 );
+			}
+			//move result to FP register
+			sprintf ( str, "\tmtc1 $9, $f12\n" );
+			main_asm = str_append ( main_asm, str );
+
+			//set syscall type
+			sprintf ( str, "\tli $v0, 2\n" );
+			main_asm = str_append ( main_asm, str );
+		}
+		
+		//call it!
+		sprintf ( str, "\tsyscall\n" );
+		main_asm = str_append ( main_asm, str );
+
+		// deallocate stack
+		sp_offset += (4*param_count);
+	}
+	else
+	{
+		// Stack frame:
+		//                         |-----------------|
+		// sp ->                   |  parameter 1    |
+		// sp-4->                  |  parameter 2    |
+		// sp-param_count->        |       sp        |
+		// sp-4*param_count-4->    |       ra        |
+		// sp-4*param_count-8->    |       locals    |
+		//                         |-----------------|
+
+		// parameters should be on stack already
+
+		// 1. Save current stack pointer into calee's stack
+		sprintf ( str, "\tsw $sp, %d($sp)\n", sp_offset );
+		main_asm = str_append ( main_asm, str );
+		saved_sp_offset = sp_offset;
+		set_sp_offset( get_sp_offset() - 4 );
+
+		// 2. Set stack pointer to beginning of callee's frame
+		sprintf ( str, "\tadd $sp, $sp, %d\n", (sp_offset + 4*(param_count+1)) );
+		main_asm = str_append ( main_asm, str );
+
+		// 3. jump to function (all parameters should be on the stack already)
+		// we do not save any registers
+		sprintf ( str, "\tjal %s\n", name );
+		main_asm = str_append ( main_asm, str );
+
+		// 4. get return value
+		sprintf ( str, "\tmove $8, $2\n" );
+		main_asm = str_append ( main_asm, str );
+		
+		// 5. Deallocate callee's stack
+		sp_offset += (4*(param_count+1));
+	}
 
 }
 
@@ -120,7 +261,7 @@ void emit_var_assign ( type_t var_type ) {
 	existing_var = find_var( var_type.name );
 	if ( existing_var == NULL )
 	{
-		// First assignment. create new space in stack
+		// init list assignment. Variable not in symbol table yet
 		sprintf ( str, "\tsw $8, %d($sp)\n", sp_offset+4 );
 	}
 	else
@@ -254,6 +395,15 @@ void emit_move_to_live() {
 
 }
 
+void emit_save_to_stack()
+{
+	char str[100];
+
+	sprintf ( str, "\tsw $8, %d($sp)\n", sp_offset);
+	main_asm = str_append ( main_asm, str );
+	sp_offset -= 4;
+}
+
 void emit_op( int op ) {
 
 	char str[100];
@@ -380,28 +530,6 @@ void emit_op( int op ) {
 	
 }
 
-void emit_return( type_t ret_type ) {
-
-	char str[100];
-	// Do return type conversion
-	if( strcmp(ret_type.real_type,"int")==0 && strcmp(t0_type, "float")==0 )
-	{
-		reg_float_to_int( 8 );
-	}
-	else if( strcmp(ret_type.real_type,"float")==0 && strcmp(t0_type, "int")==0 )
-	{
-		reg_int_to_float( 8 );
-	}
-	//store the return value in $v0
-	sprintf ( str, "\tmove $2, $8\n" );
-	main_asm = str_append ( main_asm, str );
-
-	//return to $ra
-	sprintf ( str, "\tjr $ra\n" );
-	main_asm = str_append ( main_asm, str );
-	
-}
-
 // Register d is converted from float to integer
 void reg_float_to_int( int d )
 {
@@ -456,55 +584,6 @@ void reg_int_to_float( int d )
 	{
 		strcpy( t1_type, "float" );
 	}
-}
-
-void emit_func_call ( char *name, int param_count, char *type ) {
-
-	char str[100];
-
-	if ( strcmp ( name, "write" ) == 0 ) {
-		emit_get_from_live();
-		if( strcmp(type,"string")==0 )
-		{
-			//move integer/str_address to print
-			sprintf ( str, "\tmove $a0, $9\n" );
-			main_asm = str_append ( main_asm, str );
-
-			//set syscall type
-			sprintf ( str, "\tli $v0, 4\n" );
-			main_asm = str_append ( main_asm, str );
-		}
-		else if( strcmp(type,"int")==0 )
-		{
-			//move integer/str_address to print
-			sprintf ( str, "\tmove $a0, $9\n" );
-			main_asm = str_append ( main_asm, str );
-
-			//set syscall type
-			sprintf ( str, "\tli $v0, 1\n" );
-			main_asm = str_append ( main_asm, str );
-		}
-		else if( strcmp(type,"float")==0 )
-		{
-			// convert result to float if necessary
-			if( strcmp(t1_type,"int")==0 )
-			{
-				reg_int_to_float( 9 );
-			}
-			//move result to FP register
-			sprintf ( str, "\tmtc1 $9, $f12\n" );
-			main_asm = str_append ( main_asm, str );
-
-			//set syscall type
-			sprintf ( str, "\tli $v0, 2\n" );
-			main_asm = str_append ( main_asm, str );
-		}
-		
-		//call it!
-		sprintf ( str, "\tsyscall\n" );
-		main_asm = str_append ( main_asm, str );
-	}
-
 }
 
 void emit_load_var( char *name ){

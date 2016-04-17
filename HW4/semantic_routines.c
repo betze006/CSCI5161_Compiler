@@ -38,15 +38,12 @@ void process_id( char *name )
 
 param_list_t *func_param_decl (char* type, char* name, int dim, int nest_level)
 {
-	add_var(type, name, dim, nest_level, 0);
+	//add_var(type, name, dim, nest_level, 0);
 	return newParamNode(type, name, dim, nest_level);
 }
 
 void func_decl ( char *type, char *name, param_list_t *params )
 {
-
-	//set sp offset of variables to 0
-	set_sp_offset( -4 );
 
 	func_t* func_pointer = find_func( name );
 	

@@ -34,5 +34,11 @@ void reg_int_to_float( int d );
 
 void emit_var_assign ( type_t var_type );
 
+void emit_save_to_stack();
+
+void emit_get_from_live();
+
+void emit_move_to_live();
+
 
 #endif //codegen.h_

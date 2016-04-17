@@ -1,44 +1,30 @@
 	.text
 foo:
-	sw $ra, -12($sp)
-	lw $8, 0($sp)
-	move $10, $8
-	lw $8, -4($sp)
-	move $9, $10
-	add $8, $8, $9
-	lw $ra, -12($sp)
-	lw $sp, -8($sp)
+	sw $ra, -4($sp)
+	li $8, 1
+	lw $ra, -4($sp)
+	lw $sp, 0($sp)
 	move $2, $8
 	jr $ra
 main:
-	add $sp, $sp, -4
 	sw $ra, -4($sp)
 	li $8, 1
 	sw $8, -8($sp)
 	li $8, 3
 	sw $8, -16($sp)
-# intfoo(inta,intb){returna+b;}intmain(){intx=1,y,z=3,w,i;floata,b,c;
+# intfoo(){return1;}intmain(){intx=1,y,z=3,w,i;floata,b,c;
 
 	lw $8, -8($sp)
 	li $8, 1
-	move $10, $8
-	sw $8, -40($sp)
-	li $8, 3
-	move $11, $8
-	sw $8, -44($sp)
-	sw $sp, -48($sp)
-	add $sp, $sp, -40
-	jal foo
-	move $8, $2
 	sw $8, -8($sp)
 	lw $8, -12($sp)
 	li $8, 1
-	move $12, $8
+	move $10, $8
 	li $8, 1
-	move $9, $12
+	move $9, $10
 	add $8, $8, $9
 	sw $8, -12($sp)
-# x=foo(1,3);y=1+1;
+# x=1;y=1+1;
 
 	lw $8, -28($sp)
 	li $8, 0x40866666
@@ -54,9 +40,8 @@ main:
 # b=2;
 
 	la $8, _0_const_string
-	move $12, $8
-	sw $8, -40($sp)
-	move $9, $12
+	move $10, $8
+	move $9, $10
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -66,9 +51,9 @@ main:
 
 _Test11:
 	lw $8, -28($sp)
-	move $12, $8
+	move $10, $8
 	li $8, 4
-	move $9, $12
+	move $9, $10
 	mtc1 $8, $f0
 	cvt.s.w $f0, $f0
 	mfc1 $8, $f0
@@ -83,9 +68,8 @@ FP1_clear:
 FP1_exit:
 	beqz $8, _Lexit_or_else11
 	la $8, _1_const_string
-	move $12, $8
-	sw $8, -40($sp)
-	move $9, $12
+	move $10, $8
+	move $9, $10
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -94,9 +78,8 @@ FP1_exit:
 	j _Lexit11
 _Lexit_or_else11:
 	la $8, _2_const_string
-	move $12, $8
-	sw $8, -40($sp)
-	move $9, $12
+	move $10, $8
+	move $9, $10
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -112,26 +95,23 @@ _Lexit11:
 
 _Test21:
 	lw $8, -24($sp)
-	move $12, $8
+	move $10, $8
 	li $8, 3
-	move $9, $12
+	move $9, $10
 	sle $8, $9, $8
-	move $12, $8
-	sw $8, -40($sp)
+	move $10, $8
 	beqz $8, _Lexit21
 	lw $8, -24($sp)
-	move $13, $8
-	sw $8, -44($sp)
-	move $9, $13
+	move $11, $8
+	move $9, $11
 	move $a0, $9
 	li $v0, 1
 	syscall
 # while(i<=3){write(i);
 
 	la $8, _3_const_string
-	move $13, $8
-	sw $8, -44($sp)
-	move $9, $13
+	move $11, $8
+	move $9, $11
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -141,9 +121,9 @@ _Test21:
 
 	lw $8, -24($sp)
 	lw $8, -24($sp)
-	move $13, $8
+	move $11, $8
 	li $8, 1
-	move $9, $13
+	move $9, $11
 	add $8, $8, $9
 	sw $8, -24($sp)
 # i=i+1;
@@ -156,36 +136,33 @@ _Lexit21:
 	sw $8, -24($sp)
 _Test31:
 	lw $8, -24($sp)
-	move $13, $8
+	move $11, $8
 	li $8, 0
-	move $9, $13
+	move $9, $11
 	sge $8, $9, $8
-	move $13, $8
-	sw $8, -44($sp)
+	move $11, $8
 	beqz $8, _Lexit31
 	j _Body31
 _Inc31:
 	lw $8, -24($sp)
-	move $14, $8
+	move $12, $8
 	li $8, 1
-	move $9, $14
+	move $9, $12
 	sub $8, $9, $8
 	sw $8, -24($sp)
 	j _Test31
 _Body31:
 	lw $8, -24($sp)
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	move $a0, $9
 	li $v0, 1
 	syscall
 # for(i=3;i>=0;i=i-1){write(i);
 
 	la $8, _4_const_string
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -199,9 +176,9 @@ _Lexit31:
 
 	lw $8, -36($sp)
 	lw $8, -28($sp)
-	move $14, $8
+	move $12, $8
 	lw $8, -8($sp)
-	move $9, $14
+	move $9, $12
 	mtc1 $8, $f0
 	cvt.s.w $f0, $f0
 	mfc1 $8, $f0
@@ -209,9 +186,9 @@ _Lexit31:
 	mtc1 $9, $f2
 	mul.s $f0, $f2, $f0
 	mfc1 $8, $f0
-	move $14, $8
+	move $12, $8
 	lw $8, -32($sp)
-	move $9, $14
+	move $9, $12
 	mtc1 $8, $f0
 	mtc1 $9, $f2
 	add.s $f0, $f2, $f0
@@ -220,9 +197,8 @@ _Lexit31:
 # c=a*x+b;
 
 	lw $8, -36($sp)
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	mtc1 $9, $f12
 	li $v0, 2
 	syscall
@@ -231,9 +207,8 @@ _Lexit31:
 # 
 
 	la $8, _5_const_string
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -243,9 +218,9 @@ _Lexit31:
 
 	lw $8, -12($sp)
 	lw $8, -28($sp)
-	move $14, $8
+	move $12, $8
 	lw $8, -8($sp)
-	move $9, $14
+	move $9, $12
 	mtc1 $8, $f0
 	cvt.s.w $f0, $f0
 	mfc1 $8, $f0
@@ -253,9 +228,9 @@ _Lexit31:
 	mtc1 $9, $f2
 	mul.s $f0, $f2, $f0
 	mfc1 $8, $f0
-	move $14, $8
+	move $12, $8
 	li $8, 2
-	move $9, $14
+	move $9, $12
 	mtc1 $8, $f0
 	cvt.s.w $f0, $f0
 	mfc1 $8, $f0
@@ -270,9 +245,8 @@ _Lexit31:
 # y=a*x+2;
 
 	lw $8, -12($sp)
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	move $a0, $9
 	li $v0, 1
 	syscall
@@ -281,9 +255,8 @@ _Lexit31:
 # 
 
 	la $8, _6_const_string
-	move $14, $8
-	sw $8, -48($sp)
-	move $9, $14
+	move $12, $8
+	move $9, $12
 	move $a0, $9
 	li $v0, 4
 	syscall
@@ -293,7 +266,7 @@ _Lexit31:
 
 	li $8, 0
 	lw $ra, -4($sp)
-	lw $sp, -48($sp)
+	lw $sp, 0($sp)
 	move $2, $8
 	jr $ra
 # return0;

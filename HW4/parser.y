@@ -283,8 +283,8 @@ relop_expr_list	: nonempty_relop_expr_list { $$=$1 ;  $$.param_count=$1.param_co
 		| { $$.param_count=0; }
 		;
 
-nonempty_relop_expr_list	: nonempty_relop_expr_list MK_COMMA relop_expr { $$=$1 ; $$.param_count = $1.param_count + 1; emit_move_to_live(); }
-		| relop_expr { $$=$1 ; $$.param_count = 1; emit_move_to_live(); }
+nonempty_relop_expr_list	: nonempty_relop_expr_list MK_COMMA relop_expr { $$=$1 ; $$.param_count = $1.param_count + 1; emit_move_to_live(); emit_save_to_stack(); }
+		| relop_expr { $$=$1 ; $$.param_count = 1; emit_move_to_live(); emit_save_to_stack(); }
 		;
 
 expr		: expr add_op term { $$=$1 ; check_op_types ( $1, $3 ); emit_op($2); }
