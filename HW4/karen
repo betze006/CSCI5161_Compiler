@@ -21,8 +21,6 @@ int main () {
 	write(array[6][4][1]);
 	write("\n");
 
-	write("\n");
-
 	/* Test if statement */
 	if(a>4)
 	{
