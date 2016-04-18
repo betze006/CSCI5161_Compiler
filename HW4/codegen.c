@@ -20,6 +20,8 @@ char t1_type[256];
 int label_no=0, label_no_global=0, label_no_local=0;
 int FP_label_no = 0;
 int saved_sp_offset, saved_ra_offset;
+int label_stack[10];
+int i_label_stack = 0;
 
 ///////////////////////////////////////////////////////////
 ///////////////---- emit funcs -----///////////////////
@@ -626,13 +628,14 @@ void emit_load_string ( char *const_str ) {
 
 void inc_loop_label()
 {
-	label_no_local++;
-	label_no_global+=10;
+	label_no++;
+	i_label_stack++;
+	label_stack[i_label_stack] = label_no;
 }
 
 void dec_loop_label()
 {
-	label_no_local--;
+	i_label_stack--;
 }
 
 void gen_head()
@@ -640,9 +643,8 @@ void gen_head()
 	char str[100];
 
 	inc_loop_label();
-	label_no = label_no_global + label_no_local;
 
-	sprintf ( str, "_Test%d:\n", label_no );
+	sprintf ( str, "_Test%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -650,7 +652,7 @@ void gen_test_if()
 {
 	char str[100];
 
-	sprintf ( str, "\tbeqz $8, _Lexit_or_else%d\n", label_no );
+	sprintf ( str, "\tbeqz $8, _Lexit_or_else%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -658,9 +660,9 @@ void gen_label_if_else()
 {
 	char str[100];
 
-	sprintf ( str, "\tj _Lexit%d\n", label_no );
+	sprintf ( str, "\tj _Lexit%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "_Lexit_or_else%d:\n", label_no );
+	sprintf ( str, "_Lexit_or_else%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -668,7 +670,7 @@ void gen_label_exit_if()
 {
 	char str[100];
 
-	sprintf ( str, "_Lexit_or_else%d:\n", label_no );
+	sprintf ( str, "_Lexit_or_else%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 
 	dec_loop_label();
@@ -678,7 +680,7 @@ void gen_label_exit_if_else()
 {
 	char str[100];
 
-	sprintf ( str, "_Lexit%d:\n", label_no );
+	sprintf ( str, "_Lexit%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 
 	dec_loop_label();
@@ -689,7 +691,7 @@ void gen_test_while()
 {
 	char str[100];
 
-	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_no );
+	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -697,9 +699,9 @@ void gen_label_exit_while()
 {
 	char str[100];
 
-	sprintf ( str, "\tj _Test%d\n", label_no );
+	sprintf ( str, "\tj _Test%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "_Lexit%d:\n", label_no );
+	sprintf ( str, "_Lexit%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 
 	dec_loop_label();
@@ -709,11 +711,11 @@ void gen_test_for()
 {
 	char str[100];
 
-	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_no );
+	sprintf ( str, "\tbeqz $8, _Lexit%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "\tj _Body%d\n", label_no );
+	sprintf ( str, "\tj _Body%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "_Inc%d:\n", label_no );
+	sprintf ( str, "_Inc%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -721,9 +723,9 @@ void gen_label_for()
 {
 	char str[100];
 
-	sprintf ( str, "\tj _Test%d\n", label_no );
+	sprintf ( str, "\tj _Test%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "_Body%d:\n", label_no );
+	sprintf ( str, "_Body%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 }
 
@@ -731,9 +733,9 @@ void gen_label_exit_for()
 {
 	char str[100];
 
-	sprintf ( str, "\tj _Inc%d\n", label_no );
+	sprintf ( str, "\tj _Inc%d\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
-	sprintf ( str, "_Lexit%d:\n", label_no );
+	sprintf ( str, "_Lexit%d:\n", label_stack[i_label_stack] );
 	main_asm = str_append ( main_asm, str );
 
 	dec_loop_label();
