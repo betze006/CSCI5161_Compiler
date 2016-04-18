@@ -772,7 +772,7 @@ void emit_adjust_dimm( char *name ) {
 		
 		//finally, loading from the calculated address in $10
 		sprintf ( str, "\tlw $8, 0($10)\n" );
-		strcpy( t0_type, "float" );
+		strcpy( t0_type, existing_var->type );
 		main_asm = str_append ( main_asm, str );
 
 	}

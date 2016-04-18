@@ -4,7 +4,7 @@ int foo(int a, int b) {
 
 int main () {
 
-	float array[10][6][3];
+	int array[10][6][3];
 	int x=1,y,z=3,w,i;
 	float a,b,c;
 	x=foo(1,3);

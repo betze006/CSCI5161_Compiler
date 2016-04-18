@@ -17,7 +17,7 @@ main:
 	sw $8, -728($sp)
 	li $8, 3
 	sw $8, -736($sp)
-# intfoo(inta,intb){returna+b;}intmain(){floatarray[10][6][3];intx=1,y,z=3,w,i;
+# intfoo(inta,intb){returna+b;}intmain(){intarray[10][6][3];intx=1,y,z=3,w,i;
 
 # floata,b,c;
 
@@ -77,6 +77,9 @@ main:
 	sub $10, $10, $8
 	lw $8, 0($10)
 	li $8, 0x402ccccd
+	mtc1 $8, $f0
+	cvt.w.s $f0, $f0
+	mfc1 $8, $f0
 	sw $8, 0($10)
 # array[1][2][0]=2.7;
 
@@ -102,6 +105,9 @@ main:
 	sub $10, $10, $8
 	lw $8, 0($10)
 	li $8, 0x4101999a
+	mtc1 $8, $f0
+	cvt.w.s $f0, $f0
+	mfc1 $8, $f0
 	sw $8, 0($10)
 # array[6][4][1]=8.1;
 
@@ -129,8 +135,8 @@ main:
 	move $13, $8
 	sw $8, -760($sp)
 	move $9, $13
-	mtc1 $9, $f12
-	li $v0, 2
+	move $a0, $9
+	li $v0, 1
 	syscall
 # write(array[1][2][0]);
 
@@ -171,8 +177,8 @@ main:
 	move $13, $8
 	sw $8, -760($sp)
 	move $9, $13
-	mtc1 $9, $f12
-	li $v0, 2
+	move $a0, $9
+	li $v0, 1
 	syscall
 # write(array[6][4][1]);
 
