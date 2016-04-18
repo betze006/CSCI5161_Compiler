@@ -222,7 +222,6 @@ void emit_func_call ( char *name, int param_count, char *type ) {
 		// 1. Save current stack pointer into calee's stack
 		sprintf ( str, "\tsw $sp, %d($sp)\n", sp_offset );
 		main_asm = str_append ( main_asm, str );
-		saved_sp_offset = sp_offset;
 		set_sp_offset( get_sp_offset() - 4 );
 
 		// 2. Set stack pointer to beginning of callee's frame

@@ -42,7 +42,7 @@ _Lexit_or_else11:
 	move $9, $12
 	add $8, $8, $9
 	lw $ra, -8($sp)
-	lw $sp, -16($sp)
+	lw $sp, -4($sp)
 	move $2, $8
 	jr $ra
 _Lexit11:
@@ -488,7 +488,7 @@ _Lexit41:
 
 	li $8, 0
 	lw $ra, -4($sp)
-	lw $sp, -764($sp)
+	lw $sp, 0($sp)
 	move $2, $8
 	jr $ra
 # return0;
