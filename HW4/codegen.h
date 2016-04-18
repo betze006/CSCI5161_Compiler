@@ -10,9 +10,9 @@
 //------------------   FUNC PROTOTYPES    --------------
 //======================================================
 
-void open_asm_file( );
+void open_asm_file( char* outname );
 
-void init_codegen();
+void init_codegen( char* outname );
 
 void close_asm_file( );
 
@@ -42,4 +42,19 @@ void emit_move_to_live();
 
 void emit_adjust_dimm( char *name );
 
+void emit_and_sc_test();
+
+void emit_and_sc_tail();
+
+void emit_or_sc_test();
+
+void emit_or_sc_tail();
+
+int inc_sc_label();
+
+void dec_sc_label();
+
+int pop_sc_stack();
+
+void push_sc_stack(int i);
 #endif //codegen.h_

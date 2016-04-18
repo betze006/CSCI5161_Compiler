@@ -9,6 +9,7 @@
 #include "codegen.h"
 
 temp_reg_t *reg_stack=NULL;
+temp_sc_label_t *sc_stack=NULL;
 int label_counter=0;
 FILE *asm_file;
 char *main_asm;
@@ -17,18 +18,18 @@ int sp_offset;
 int live_list[18];
 char t0_type[256];
 char t1_type[256];
-int label_no=0, label_no_global=0, label_no_local=0;
+int label_no=0, label_no_global=0, label_no_local=0, label_sc_global=0;
 int FP_label_no = 0;
 int saved_sp_offset, saved_ra_offset;
 
 ///////////////////////////////////////////////////////////
 ///////////////---- emit funcs -----///////////////////
 ///////////////////////////////////////////////////////////
-void init_codegen()
+void init_codegen( char* outname )
 {
 	int i;
 
-	open_asm_file();
+	open_asm_file( outname );
 
 	data_asm="";
 	main_asm="";
@@ -40,9 +41,12 @@ void init_codegen()
 		live_list[i] = 0;
 }
 
-void open_asm_file( )
+void open_asm_file( char* outname )
 {
-	asm_file = fopen ( "out.s", "w" );
+
+	char str[256];
+	sprintf ( str, "%s.s", outname );
+	asm_file = fopen ( str, "w" );
 }
 
 void close_asm_file( )
@@ -205,6 +209,21 @@ void emit_func_call ( char *name, int param_count, char *type ) {
 
 		// deallocate stack
 		sp_offset += (4*param_count);
+	}
+	else if ( strcmp ( name, "read" ) == 0 ) {
+		//read int
+		sprintf ( str, "\tli $v0, 5\n" );
+		main_asm = str_append ( main_asm, str );
+
+		//call it!
+		sprintf ( str, "\tsyscall\n" );
+		main_asm = str_append ( main_asm, str );
+
+		//move it to $8
+		sprintf ( str, "\tmove $8, $v0\n" );
+		main_asm = str_append ( main_asm, str );
+		strcpy( t0_type, "int" );
+
 	}
 	else
 	{
@@ -635,6 +654,16 @@ void dec_loop_label()
 	label_no_local--;
 }
 
+int inc_sc_label()
+{
+	return label_sc_global++;
+}
+
+void dec_sc_label()
+{
+	label_sc_global--;
+}
+
 void gen_head()
 {
 	char str[100];
@@ -750,9 +779,6 @@ void emit_adjust_dimm( char *name ) {
 		sprintf ( str, "\tla $10, %d($sp)\n", existing_var->sp_offset );
 		main_asm = str_append ( main_asm, str );
 
-		printf ( "------ %d -------\n", existing_var->dim );
-		fflush(stdout);
-
 		int ndim = existing_var->dim, i;
 		for ( i=ndim-1 ; i>=0 ; i-- ) {
 			//get the index value
@@ -777,3 +803,117 @@ void emit_adjust_dimm( char *name ) {
 	}
 
 }
+
+///////////////////////////////////////////////////////////////////////
+/////////////////////   SHORT-CIRCUIT Funcs  //////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+int pop_sc_stack(){
+
+	//last element of stack
+	if ( sc_stack->next == NULL ) {
+		temp_sc_label_t *temp=sc_stack;
+		sc_stack = NULL;
+		return temp->label;
+	}
+	else {
+		temp_sc_label_t *temp=sc_stack;
+		while ( temp->next->next!=NULL ) temp = temp->next;
+		temp_sc_label_t *temp2=temp->next;
+		temp->next = NULL;
+		return temp2->label;		
+	}
+}
+
+void push_sc_stack ( int i ) {
+	if ( sc_stack == NULL ) {
+		temp_sc_label_t *newtemp = (temp_sc_label_t *) malloc ( sizeof (temp_sc_label_t) );
+		newtemp->label = i;
+		newtemp->next=NULL;
+		sc_stack = newtemp;
+	}
+	else {
+		temp_sc_label_t *newtemp = sc_stack;
+		while ( newtemp->next != NULL ) newtemp = newtemp->next;
+		newtemp->next = (temp_sc_label_t *) malloc ( sizeof (temp_sc_label_t) );
+		newtemp->next->label = i;
+		newtemp->next->next=NULL;
+	}
+}
+
+void emit_and_sc_test() {
+
+	char str[100];
+	int sc_label = inc_sc_label();
+
+	//emit the beqz
+	sprintf ( str, "\tbeqz $8, _short_F%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+
+	push_sc_stack(sc_label);
+
+	
+
+}
+void emit_and_sc_tail(){
+
+	char str[100];
+	int sc_label = pop_sc_stack();
+	
+	//emit the beqz
+	sprintf ( str, "\tbeqz $8, _short_F%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+
+	//emit li 1
+	sprintf ( str, "_short_T%d:\n\tli $8, 1\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+	strcpy( t0_type, "int" );
+	
+	//J to exit
+	sprintf ( str, "\tj _short_E%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+	
+	//Start the Failure
+	sprintf ( str, "_short_F%d:\n\tli $8, 0\n_short_E%d:\n", sc_label, sc_label);
+	main_asm = str_append ( main_asm, str );
+
+}
+
+void emit_or_sc_test() {
+
+	char str[100];
+	int sc_label = inc_sc_label();
+
+	//emit the beqz
+	sprintf ( str, "\tbnez $8, _short_T%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+
+	push_sc_stack(sc_label);
+
+	
+
+}
+void emit_or_sc_tail() {
+
+	char str[100];
+	int sc_label = pop_sc_stack();
+	
+	//emit the beqz
+	sprintf ( str, "\tbnez $8, _short_T%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+
+	//emit li 1
+	sprintf ( str, "_short_F%d:\n\tli $8, 0\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+	strcpy( t0_type, "int" );
+	
+	//J to exit
+	sprintf ( str, "\tj _short_E%d\n", sc_label);
+	main_asm = str_append ( main_asm, str );
+	
+	//Start the Failure
+	sprintf ( str, "_short_T%d:\n\tli $8, 1\n_short_E%d:\n", sc_label, sc_label);
+	main_asm = str_append ( main_asm, str );
+
+}
+

@@ -376,11 +376,11 @@ void init_funcs () {
 
 }
 
-void init_all(){
+void init_all( char *outname ){
 	init_source_text();
 	init_types();
 	init_funcs();
-	init_codegen();	
+	init_codegen( outname );	
 }
 
 /**********************************

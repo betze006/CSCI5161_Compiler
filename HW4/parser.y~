@@ -13,6 +13,8 @@ type_t int_type;
 type_t float_type;
 type_t string_type;
 
+char outfilename[256];
+
 %}
 
 %union {
@@ -103,7 +105,7 @@ type_t string_type;
 /* ==== Grammar Section ==== */
 
 /* Productions */               /* Semantic actions */
-program		: { init_all(); strcpy(int_type.real_type, "int"); strcpy(string_type.real_type, "string"); strcpy(float_type.real_type, "float"); } global_decl_list { print_vars(); print_types(); print_funcs(); print_structs(); print_all_asm(); close_asm_file();}
+program		: { init_all(outfilename); strcpy(int_type.real_type, "int"); strcpy(string_type.real_type, "string"); strcpy(float_type.real_type, "float"); } global_decl_list { /*print_vars(); print_types(); print_funcs(); print_structs();*/ print_all_asm(outfilename); close_asm_file();}
 		;
 
 global_decl_list: global_decl_list global_decl
@@ -256,17 +258,17 @@ assign_expr     : ID {process_id($1);} OP_ASSIGN relop_expr {emit_var_assign( ch
 
 
 relop_expr	: relop_term { $$=$1; }
-		| relop_expr op_or relop_term  { $$=$1 ; check_op_types ( $1, $3 ); emit_op($2);  }
+		| relop_expr op_or relop_term  { $$=$1 ; check_op_types ( $1, $3 ); /*emit_op($2);*/ emit_or_sc_tail();  }
 		;
 
-op_or : OP_OR { emit_move_to_live(); $$=4; }
+op_or : OP_OR { /*emit_move_to_live();*/ emit_or_sc_test(); $$=4; }
 		;
 
 relop_term	: relop_factor { $$=$1; }
-		| relop_term op_and relop_factor { $$=$1 ; check_op_types ( $1, $3 );  emit_op($2); }
+		| relop_term op_and relop_factor { $$=$1 ; check_op_types ( $1, $3 );  /*emit_op($2);*/ emit_and_sc_tail(); }
 		;
 
-op_and : OP_AND { emit_move_to_live(); $$=5; }
+op_and : OP_AND { /*emit_move_to_live();*/ emit_and_sc_test(); $$=5; }
 		;
 
 relop_factor	: expr { $$=$1; }
@@ -306,11 +308,11 @@ mul_op		: OP_TIMES { emit_move_to_live(); $$=0; }
 		| OP_DIVIDE { emit_move_to_live();  $$=1; }
 		;
 
-factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; }
+factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; inc_sc_label();}
 		/* | -(<relop_expr>) */ 
-		| OP_NOT MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_not();}
+		| OP_NOT MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_not(); inc_sc_label();}
                 /* OP_MINUS condition added as C could have a condition like: "if(-(i < 10))".	*/		
-		| OP_MINUS MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_negate();}
+		| OP_MINUS MK_LPAREN relop_expr MK_RPAREN { $$ = $3; emit_negate(); inc_sc_label();}
 		| CONST	{ $$ = int_type; emit_const_loadi($1); }
 		| CONSTF { emit_const_loadf($1); $$ = float_type; }
 		/* | - constant, here - is an Unary operator */ 
@@ -333,7 +335,7 @@ factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; }
 		;
 
 var_ref		: ID {process_id($1); $$=check_id_type($1); $$.param_count=0; $$.dim_count_struct=-1; emit_load_var($1); strcpy($$.name, $1); }
-		| var_ref var_ref_dim { $1.param_count=$2; $$=$1; }
+		| var_ref var_ref_dim { $1.param_count=$2; $$=$1; emit_adjust_dimm($1.name); }
 		| var_ref struct_tail { check_array_dimmension($1); $$=struct_ref($1.name, $2); $$.dim_count_struct = array_dimmension_struct($$, $1.name); $$.param_count=0; }
 		;
 
@@ -355,8 +357,10 @@ int main (int argc, char *argv[])
 {
 	int errors_found = 0;
     //init_symtab();
-    if(argc>0)
+    if(argc>0) {
         yyin = fopen(argv[1],"r");
+        strcpy ( outfilename, argv[1] );
+    }
     else
         yyin=stdin;
     yyparse();

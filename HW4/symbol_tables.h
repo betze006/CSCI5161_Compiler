@@ -63,6 +63,10 @@ typedef struct temp_reg_list {
 	struct temp_reg_list *next;
 } temp_reg_t;
 
+typedef struct temp_sc_label {
+	int label;
+	struct temp_sc_label *next;
+} temp_sc_label_t;
 //======================================================
 //------------------   FUNC PROTOTYPES    --------------
 //======================================================
@@ -95,7 +99,7 @@ void type_def ( char *type, id_list_t *head, int nest_level );
 
 void pop_types ( int nest_level );
 
-void init_all();
+void init_all(char *outname);
 
 char *get_real_type( char *type );
 
