@@ -44,7 +44,6 @@ int array_dimmension_struct ( type_t id , char *var_name );
 void check_dim_type ( type_t dim_type );
 
 void set_array_dim ( int i, int value );
-
 int get_array_dim ( int i );
 
 #endif //semantic_routines.h_

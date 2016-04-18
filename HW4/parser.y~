@@ -333,7 +333,7 @@ factor		: MK_LPAREN relop_expr MK_RPAREN { $$ = $2; }
 		;
 
 var_ref		: ID {process_id($1); $$=check_id_type($1); $$.param_count=0; $$.dim_count_struct=-1; emit_load_var($1); strcpy($$.name, $1); }
-		| var_ref var_ref_dim { $1.param_count=$2; $$=$1; emit_adjust_dimm($1.name); }
+		| var_ref var_ref_dim { $1.param_count=$2; $$=$1; }
 		| var_ref struct_tail { check_array_dimmension($1); $$=struct_ref($1.name, $2); $$.dim_count_struct = array_dimmension_struct($$, $1.name); $$.param_count=0; }
 		;
 

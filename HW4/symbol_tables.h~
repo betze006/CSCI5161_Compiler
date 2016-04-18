@@ -75,7 +75,7 @@ char *get_source_text( );
 
 void print_vars();
 
-void add_var ( char *type, char *name, int dim, int nest_level, int sp_offset_local, int *arr_dim );
+void add_var ( char *type, char *name, int dim, int nest_level, int sp_offset_local );
 
 void pop_vars ( int nest_level );
 

@@ -40,6 +40,6 @@ void emit_get_from_live();
 
 void emit_move_to_live();
 
-void emit_adjust_dimm( char *name );
+void emit_adjust_dimm();
 
 #endif //codegen.h_
