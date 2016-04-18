@@ -25,6 +25,10 @@ int main () {
 	if(a>4)
 	{
 		write("True\n");
+		if(y>1)
+		{
+			write("Nested if ok\n");
+		}
 	}
 	else
 	{

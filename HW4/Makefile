@@ -1,5 +1,5 @@
 TARGET = parser
-OBJECT = parser.tab.c parser.tab.o lex.yy.c semantic_routines.o symbol_tables.o nesting.o
+OBJECT = parser.tab.c parser.tab.o lex.yy.c semantic_routines.o symbol_tables.o nesting.o codegen.o
 CC = gcc
 LEX = flex
 YACC = bison -v
